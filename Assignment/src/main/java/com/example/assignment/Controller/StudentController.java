@@ -1,5 +1,6 @@
 package com.example.assignment.Controller;
 
+import com.example.assignment.DTO.LoginRequest;
 import com.example.assignment.Model.Student;
 import com.example.assignment.Service.StudentService;
 import lombok.extern.slf4j.Slf4j;
@@ -15,10 +16,13 @@ import java.util.List;
 @RequestMapping("/students")
 public class StudentController {
 
-    @Autowired
-    private StudentService studentService;
+    private final StudentService studentService;
 
-    @PostMapping
+    public StudentController(StudentService studentService) {
+        this.studentService = studentService;
+    }
+
+    @PostMapping("/register")
     public ResponseEntity<Student> createStudent(@RequestBody Student student) {
         try{
             log.info("Registering student....");
@@ -31,7 +35,20 @@ public class StudentController {
         }
     }
 
-    @GetMapping
+    @PostMapping("/login")
+    public ResponseEntity<String> loginStudent(@RequestBody LoginRequest request) {
+        try{
+            log.info("Logging in student....");
+            String token = studentService.loginStudent(request);
+            log.info("student logged in !");
+            return ResponseEntity.ok(token);
+        } catch (Exception e){
+            log.error("error occured in logging in...");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+    }
+
+    @GetMapping("/getAll")
     public ResponseEntity<List<Student>> getAllStudents() {
         try{
             List<Student> allStudents = studentService.getAll();
