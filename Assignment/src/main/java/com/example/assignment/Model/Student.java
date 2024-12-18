@@ -1,5 +1,6 @@
 package com.example.assignment.Model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Data;
@@ -19,6 +20,7 @@ import java.util.Set;
 @NoArgsConstructor
 @Builder
 @AllArgsConstructor
+@JsonIgnoreProperties({"subjects"})
 public class Student implements UserDetails {
 
     @Id
@@ -33,7 +35,7 @@ public class Student implements UserDetails {
     private List<String> roles;
 
     @OneToMany(mappedBy = "student")
-    private Set<Subject> subjects;
+    private List<Subject> subjects;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

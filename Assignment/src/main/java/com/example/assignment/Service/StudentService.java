@@ -1,17 +1,10 @@
 package com.example.assignment.Service;
 
-import com.example.assignment.DTO.LoginRequest;
-import com.example.assignment.Mapper.LoginMapper;
 import com.example.assignment.Model.Student;
+import com.example.assignment.Model.Subject;
 import com.example.assignment.Repository.StudentRepository;
-import com.example.assignment.Util.JwtUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -26,15 +19,13 @@ public class StudentService implements UserDetailsService {
 
     private final StudentRepository studentRepository;
     private final PasswordEncoder passwordEncoder;
-    private final AuthenticationManager authenticationManager;
-    private final JwtUtil jwtUtil;
+    private final SubjectService subjectService;
 
     @Autowired
-    public StudentService(StudentRepository studentRepository, PasswordEncoder passwordEncoder, @Lazy AuthenticationManager authenticationManager, JwtUtil jwtUtil) {
+    public StudentService(StudentRepository studentRepository, PasswordEncoder passwordEncoder, SubjectService subjectService) {
         this.studentRepository = studentRepository;
         this.passwordEncoder = passwordEncoder;
-        this.authenticationManager = authenticationManager;
-        this.jwtUtil = jwtUtil;
+        this.subjectService = subjectService;
     }
 
     public Student addStudent(Student student) {
@@ -64,18 +55,22 @@ public class StudentService implements UserDetailsService {
         throw new UsernameNotFoundException(username.concat(" user not found"));
     }
 
-   public String loginStudent(LoginRequest request) {
-        try {
-            Student student = LoginMapper.loginToUser(request);
-            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(student.getEmail(), student.getPassword()));
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-            UserDetails userDetails = loadUserByUsername(student.getEmail());
-            String token = jwtUtil.generateToken(userDetails.getUsername());
-            log.info("Student {} logged in successfully", student.getEmail());
-            return token;
-        } catch (Exception e) {
-            log.error("Error logging in student: ", e);
-            throw new RuntimeException("Login failed", e);
+    public Student registerSubject(String email, String subName) {
+        Student student = studentRepository.findByEmail(email);
+        if (student == null) {
+            throw new IllegalArgumentException("Student not found");
         }
+        Subject subject = subjectService.findSubjectByName(subName);
+        if (subject == null || subject.getStudent() != null) {
+            throw new IllegalArgumentException("Subject already registered to a student or not found");
+        }
+        subject.setStudent(student);
+        student.getSubjects().add(subject);
+        subjectService.saveSubject(subject);
+        return studentRepository.save(student);
+    }
+
+    public Student findStudentByEmail(String email) {
+        return studentRepository.findByEmail(email);
     }
 }
