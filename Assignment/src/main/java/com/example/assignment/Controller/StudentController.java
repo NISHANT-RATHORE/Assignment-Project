@@ -4,7 +4,6 @@ import com.example.assignment.DTO.LoginRequest;
 import com.example.assignment.Model.Student;
 import com.example.assignment.Service.StudentService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +21,7 @@ public class StudentController {
         this.studentService = studentService;
     }
 
-    @PostMapping("/register")
+    @PostMapping("/create")
     public ResponseEntity<Student> createStudent(@RequestBody Student student) {
         try{
             log.info("Registering student....");

@@ -29,10 +29,10 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http.authorizeHttpRequests(request -> request
-                        .requestMatchers("/students/register").permitAll()
+                        .requestMatchers("/students/create").permitAll()
+                        .requestMatchers("/students/getAll").hasRole("ADMIN")
                         .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers("/students/login").hasRole("STUDENT")
-                        .requestMatchers("/students/getAll").hasRole("ADMIN")
                         .requestMatchers("/students/**").hasAnyRole("STUDENT", "ADMIN")
                         .anyRequest().authenticated())
                 .headers(headers -> headers.frameOptions(Customizer.withDefaults()).disable())
