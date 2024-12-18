@@ -2,7 +2,6 @@ package com.example.assignment.Controller;
 
 import com.example.assignment.DTO.LoginRequest;
 import com.example.assignment.Model.Student;
-import com.example.assignment.Model.Subject;
 import com.example.assignment.Service.StudentService;
 import com.example.assignment.Util.JwtUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -75,8 +74,8 @@ public class StudentController {
     @PostMapping("/registerSubject")
     public ResponseEntity<Student> registerSubject(@RequestParam(name = "subName") String subName, @RequestHeader("Authorization") String token) {
         try {
-            String email = jwtUtil.extractUsername(token.substring(7)); // Remove "Bearer " prefix
-            Student student = studentService.findStudentByEmail(email); // Use a method to find the student by email
+            String email = jwtUtil.extractUsername(token.substring(7));
+            Student student = studentService.findStudentByEmail(email);
             Student updatedStudent = studentService.registerSubject(student.getEmail(), subName);
             return ResponseEntity.ok(updatedStudent);
         } catch (Exception e) {
